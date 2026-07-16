@@ -8,6 +8,7 @@
 
 from .core import judge, make_secret
 from .difficulty import ask_digits
+from .quiz import check_quiz
 
 def play(digits=3):
     secret = make_secret(digits)
@@ -26,9 +27,10 @@ def play(digits=3):
         guess = input("予想 > ").strip()
 
         # ===== ② 入力コマンドに足す（ヒント など）: ここに書く（import もここに） =====
-        # 例:  from .hint import hint
-        #      if guess == "h":
-        #          print(hint(secret)); continue
+        
+        # クイズが発動した場合、この関数の中で「正解するまで足止め」されます。
+        # 正解するとここに戻ってきて、そのまま下のHit & Blow判定へ進みます。
+        check_quiz()
 
         if len(guess) != digits or not guess.isdigit():
             print(f"{digits} 桁の数字で入力してね")
