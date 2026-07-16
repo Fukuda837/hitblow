@@ -7,14 +7,20 @@
 """
 
 from .core import judge, make_secret
-
+from .difficulty import ask_digits
 
 def play(digits=3):
     secret = make_secret(digits)
     print(f"Hit & Blow（{digits} 桁・重複なし）")
 
     # ===== ① 開始時に足す（難易度・あいさつ など）: ここに書く =====
-
+    new_digits = ask_digits(digits)
+    # 桁数が変更された場合のみ、設定と答えを上書きして再生成する
+    if new_digits != digits:
+        digits = new_digits
+        secret = make_secret(digits)
+        print(f"⇒ 【設定変更】 {digits} 桁でゲームをスタートします！")
+        
     tries = 0
     while True:
         guess = input("予想 > ").strip()
