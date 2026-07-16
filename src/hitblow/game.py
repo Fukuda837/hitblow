@@ -21,8 +21,13 @@ def play(digits=3):
         secret = make_secret(digits)
         print(f"⇒ 【設定変更】 {digits} 桁でゲームをスタートします！")
         
+    from .max import get_max_tries, check_game_over
+    max_tries = get_max_tries()
+    print(f"チャンスは最大 {max_tries} 回です。慎重に予想してください！")
+
     tries = 0
     while True:
+        remaining = max_tries - tries
         guess = input("予想 > ").strip()
 
         # ===== ② 入力コマンドに足す（ヒント など）: ここに書く（import もここに） =====
@@ -41,4 +46,14 @@ def play(digits=3):
             # ===== ③ 勝利時に足す（スコア・履歴 など）: ここに書く =====
 
             print(f"正解！ {tries} 回で当たり（答え {secret}）")
+            break
+
+
+        
+        # 【追加】最大回数に達してしまった場合のゲームオーバー判定
+        if tries >= max_tries:
+            print("\n==============================")
+            print("GAME OVER ... 残念、挑戦回数の上限に達しました。")
+            print(f"正解は 【{secret}】 でした！")
+            print("==============================\n")
             break
