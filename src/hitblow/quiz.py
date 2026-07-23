@@ -1533,20 +1533,25 @@ QUIZZES = [
     }
 ]
 
-def check_quiz(secret, digits):  # ★ 引数に secret と digits を追加
+# ★ クイズの成績を記録する変数を追加（関数の外に置くことで状態を保持）
+quiz_stats = {"total": 0, "correct": 0}
+
+def check_quiz(secret, digits):
     """
     3分の1の確率でクイズを出題する。
     発動した場合は、正解するまで別々のクイズを出題し続ける。
     1回でも間違えると、Hit & Blowの答えが変更されるペナルティが発生する。
     """
+    global quiz_stats
+    
     # 1〜3のランダムな数字を作り、1以外なら何もしない（約33%の確率で発動）
     if random.randint(1, 3) != 1:
-        return secret  # ★ 何も起きなかった場合は元の答えをそのまま返す
+        return secret
 
     print("\n🚨 【突発イベント】Hit & Blowの判定に進むには、クイズに正解する必要があります！")
     
     last_quiz = None  # 直前に出題した問題を記憶する変数
-    mistake_made = False  # ★ 既に間違えてペナルティを受けたかを記録
+    mistake_made = False  # 既に間違えてペナルティを受けたかを記録
     
     while True:
         # 問題を選ぶ（前回と同じ問題が連続で出ないようにする工夫）
@@ -1562,14 +1567,32 @@ def check_quiz(secret, digits):  # ★ 引数に secret と digits を追加
             print(f"  {choice}")
             
         ans = input("答えを番号(1〜4)で入力 > ").strip()
+        quiz_stats["total"] += 1  # 出題数をカウントアップ
         
         if ans == q['answer']:
-            print("⭕ 正解！ 予想した数字の Hit & Blow 判定に進みます。\n")
+            quiz_stats["correct"] += 1  # 正解数をカウントアップ
+            
+            # ★ 正答率の計算と煽りコメントの表示
+            rate = (quiz_stats["correct"] / quiz_stats["total"]) * 100
+            print(f"⭕ 正解！ (現在の正答率: {rate:.1f}%)")
+            
+            if rate == 100:
+                print("😎 「全問正解とか、ちょっと引くわ...暇なの？一応褒めてあげるけど。」")
+            elif rate >= 70:
+                print("😏 「まあまあだね。でも、これくらい常識でしょ？」")
+            elif rate >= 50:
+                print("🥱 「半分は正解か。運が良いだけでしょ、どうせ。」")
+            elif rate >= 30:
+                print("🤔 「え、マジで言ってる？小学生のドリルからやり直した方がいいかも。」")
+            else:
+                print("🤪 「その正答率で生きていけるの？ある意味尊敬するわ...」")
+                
+            print("予想した数字の Hit & Blow 判定に進みます。\n")
             break  # 正解したらループを抜けて、ゲームに戻る
         else:
             print("❌ 不正解！ 正解するまで戻れません。次の問題いきます！")
             
-            # ★ 1回目の不正解時に答えをランダムに変更する処理
+            # 1回目の不正解時に答えをランダムに変更する処理
             if not mistake_made:
                 print("⚠️ 【ペナルティ】Hit & Blowの正解の数字がランダムに変更されました！")
                 secret = make_secret(digits)
@@ -1577,4 +1600,4 @@ def check_quiz(secret, digits):  # ★ 引数に secret と digits を追加
                 
             last_quiz = q  # 今出題した問題を記録して、次は違う問題が出るようにする
 
-    return secret  # ★ 最終的な答え（変更されたか、元のままか）をゲームに返す
+    return secret  # 最終的な答え（変更されたか、元のままか）をゲームに返す
