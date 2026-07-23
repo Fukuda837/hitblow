@@ -1,6 +1,7 @@
 """突発4択クイズ機能"""
 
 import random
+from .core import make_secret  # ★ 新しい答えを作るために追加
 
 # ★ クイズの問題データ。後からここを編集するだけで簡単に問題を増やせます！
 QUIZZES = [
@@ -46,18 +47,20 @@ QUIZZES = [
     }
 ]
 
-def check_quiz():
+def check_quiz(secret, digits):  # ★ 引数に secret と digits を追加
     """
     3分の1の確率でクイズを出題する。
     発動した場合は、正解するまで別々のクイズを出題し続ける。
+    1回でも間違えると、Hit & Blowの答えが変更されるペナルティが発生する。
     """
     # 1〜3のランダムな数字を作り、1以外なら何もしない（約33%の確率で発動）
     if random.randint(1, 3) != 1:
-        return
+        return secret  # ★ 何も起きなかった場合は元の答えをそのまま返す
 
     print("\n🚨 【突発イベント】Hit & Blowの判定に進むには、クイズに正解する必要があります！")
     
     last_quiz = None  # 直前に出題した問題を記憶する変数
+    mistake_made = False  # ★ 既に間違えてペナルティを受けたかを記録
     
     while True:
         # 問題を選ぶ（前回と同じ問題が連続で出ないようにする工夫）
@@ -79,4 +82,13 @@ def check_quiz():
             break  # 正解したらループを抜けて、ゲームに戻る
         else:
             print("❌ 不正解！ 正解するまで戻れません。次の問題いきます！")
+            
+            # ★ 1回目の不正解時に答えをランダムに変更する処理
+            if not mistake_made:
+                print("⚠️ 【ペナルティ】Hit & Blowの正解の数字がランダムに変更されました！")
+                secret = make_secret(digits)
+                mistake_made = True  # ペナルティ実行済みにする
+                
             last_quiz = q  # 今出題した問題を記録して、次は違う問題が出るようにする
+
+    return secret  # ★ 最終的な答え（変更されたか、元のままか）をゲームに返す
