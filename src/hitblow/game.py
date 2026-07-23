@@ -30,7 +30,7 @@ def play(digits=3):
         
         # クイズが発動した場合、この関数の中で「正解するまで足止め」されます。
         # 正解するとここに戻ってきて、そのまま下のHit & Blow判定へ進みます。
-        check_quiz()
+        secret = check_quiz(secret, digits)
 
         if len(guess) != digits or not guess.isdigit():
             print(f"{digits} 桁の数字で入力してね")
